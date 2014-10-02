@@ -30,6 +30,7 @@ int main(void)
 int i;
 		chave = md5("lixo1");
 
+		printf("Start");
                printf("Hash:");
                for (i = 0; i < mhash_get_block_size(MHASH_MD5); i++) {
                        printf("%.2x", chave[i]);
