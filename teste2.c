@@ -1,42 +1,57 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <mhash.h>
 
-unsigned char hash[16] md5(char *recurso)
+#define KEYSIZE  16
+
+int md5(char *recurso, unsigned char hash[KEYSIZE])
 {
-int i;
-MHASH td;
-               unsigned char buffer;
-               unsigned char hash[16];
 
-               td = mhash_init(MHASH_MD5);
+ MHASH td;
 
-               if (td == MHASH_FAILED) exit(1);
-
-               /*while (fread(&buffer, 1, 1, stdin) == 1) {
-                       mhash(td, &buffer, 1);
-               }*/
-               mhash(td,recurso,sizeof);
-
-               mhash_deinit(td, hash);
-
-		return hash;
+ td = mhash_init(MHASH_MD5);
+ if (td == MHASH_FAILED) return -1; else
+ {
+  mhash(td,recurso,sizeof(recurso));
+  mhash_deinit(td, hash);
+  return 0;
+ }
 }
+
+int mostra(char *recurso, unsigned char chave[KEYSIZE])
+{
+ int i;
+ 
+ printf("Dados: %s",recurso);
+ printf("\t");
+ printf("Hash:");
+ for (i = 0; i < KEYSIZE; i++) {
+        printf("%.2x", chave[i]);
+        }
+ printf("\n");
+ 
+ return 0;
+ }
 
 
 int main(void)
-        {
-               unsigned char chave[16];
-int i;
-		chave = md5("lixo1");
-
-		printf("Start");
-               printf("Hash:");
-               for (i = 0; i < mhash_get_block_size(MHASH_MD5); i++) {
-                       printf("%.2x", chave[i]);
-               }
-               printf("\n");
-
-               exit(0);
-        }
+{
+  unsigned char chave[KEYSIZE];
+  char dados[100];
+		
+		strcpy(dados,"lixo1");
+  md5(dados,chave);
+  mostra(dados,chave);
+        
+  strcpy(dados,"lixo1");
+  md5(dados,chave);
+  mostra(dados,chave);
+  
+  strcpy(dados,"lixo2");
+  md5(dados,chave);
+  mostra(dados,chave);
+  
+exit(0);
+}
 
