@@ -122,6 +122,8 @@ inserir("teste1",0.3);
 
 mostra_bloom();
 
+
+//Verificar se existem estes recursos, ou seja p>0
 printf("teste \t[p]=%f\n",contem("teste"));
 printf("teste1 \t[p]=%f\n",contem("teste1"));
 printf("teste2 \t[p]=%f\n",contem("teste2"));
