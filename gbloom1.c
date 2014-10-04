@@ -12,10 +12,10 @@
 
 #define KEYSIZE 16
 
-#define M 100
+#define M 256
 #define K 4
 
-float bloom[M+K]; //Filtro Global
+float bloom[M]; //Filtro Global
 
 
 
@@ -60,10 +60,10 @@ void mostra_bloom(void)
 {
 int i;
 printf("##### Conteudo do FILTRO ########\n");
-printf("bloom[]=");
+printf("Vector bloom[]:\n");
 for (i=0 ; i<M; i++)
 	{
-        printf("%f ",bloom[i]);
+        printf("%.2f ",bloom[i]);
 	if (!(i % 10)) { printf("\n");}
 	}
 printf("\n");
@@ -73,37 +73,33 @@ printf("\n");
 
 void inserir(char *elem,float p)
 {
-int i,j,sum,idx;
+int j,idx;
+unsigned char chave[KEYSIZE];
+
+md5(elem,chave);
+mostra_md5(elem,chave);
 
 for (j=0 ; j<K; j++)
    {
-   sum=0;
-   for (i=0 ; i<sizeof(elem); i++)
-	sum+=elem[i]*elem[i];
-   idx=((sum+j) % M);
-   printf("%d",idx);
+   //idx=chave[2*j]+chave[2*j+1];
+   idx=chave[j];
+   printf("Pos: %d ", idx);
    bloom[idx]=max(p,bloom[idx]);
    }
-//printf("\n sum = %d\n",sum);
+   printf("\n");
 }
 
-
-float ler(char *elem)
+float contem(char *elem)
 {
-int i,j,sum,idx;
+int j,idx;
 float result;
-sum=0;
-result=0;
+unsigned char chave[KEYSIZE];
 
-for (i=0 ; i<sizeof(elem); i++)
-	sum+=elem[i]*elem[i];
-
-idx=(sum % M);
-printf("%d",idx);
-
-result=bloom[idx];
+md5(elem,chave);
+result=2;
 for (j=0; j<K; j++)
-    result=min(result,bloom[idx+j]);
+	idx=chave[j];
+    result=min(result,bloom[idx]);
 return result;
 //printf("\n sum = %d\n",sum);
 }
@@ -120,13 +116,15 @@ for (i=0 ; i<M; i++)
 
 
 
-//inserir("teste",0.5);
+inserir("teste",0.5);
 
+inserir("teste1",0.3);
 
 mostra_bloom();
 
-printf("teste \t[p]=%f\n",ler("teste"));
-
+printf("teste \t[p]=%f\n",contem("teste"));
+printf("teste1 \t[p]=%f\n",contem("teste1"));
+printf("teste2 \t[p]=%f\n",contem("teste2"));
 
 exit(0);
 }
