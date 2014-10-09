@@ -102,10 +102,9 @@ result=min(result,bloom[idx]);
 return result;
 }
 
-void combinar(float *bloom1, float *bloom2, float *forward)
+void combinar(float *bloom1, float *bloom2, float *forward, float att)
 {
 int j;
-float att = 0.5;
 
 for (j=0 ; j<M; j++)
    {
@@ -128,64 +127,70 @@ for (j=0; j<K; j++)
 	result=min(result,bloom[idx]);
 	}
 
-return (1-result);
+return (result);
 }
 
 
-int main( void )
+int main(int argc, char* argv[])
 {
 int i;
-float delay;
+char *res;
+float p,att,delay;
 float bloom1[M];  //Filtro Recursos Próprios
 float bloom2[M];  //Gradiente recebido
 float forward[M]; //Adicao da informação própria ao gradiente existente
 
-for (i=0 ; i<M; i++)
+
+if(argc == 2)
 {
-	bloom1[i]=0;
-    bloom2[i]=0;
+	for (i=0 ; i<M; i++)
+	{
+		bloom1[i]=0;
+	    bloom2[i]=0;
+	}
+	
+	
+	//Carregar recursos no filtro
+	inserir("recurso1",1,bloom1);
+	inserir("recurso2",1,bloom1);
+	mostra_bloom(bloom1);
+	//Verificar se existem estes recursos, ou seja se p>0
+	printf("recurso1 \t[p]=%f\n",contem("recurso1",bloom1));
+	printf("recurso2 \t[p]=%f\n",contem("recurso2",bloom1));
+	printf("recurso3 \t[p]=%f\n",contem("recurso3",bloom1));
+	
+	
+	printf("#############################\n");
+	printf("### Usar os dois vectores ###\n");
+	printf("#############################\n");
+	//Simular informação de um vizinho com histórico
+	inserir("recurso3",1,bloom2);
+	inserir("recurso4",1,bloom2);
+	inserir("recurso5",0.5,bloom2);
+	inserir("recurso6",0.4,bloom2);
+	inserir("recurso7",0.3,bloom2);
+	//O vector bloom2 já tem informação de gradiente
+	mostra_bloom(bloom2);
+	
+	//Adicionar informação própria ao gradiente existente
+	att=0.5;
+	combinar(bloom1,bloom2,forward,att);
+	//O vector a ser renviado será
+	mostra_bloom(forward);
+	
+	printf("#############################\n");
+	printf("####### Decisão no nó #######\n");
+	printf("#############################\n");
+	p=pesquisa(argv[1],forward);
+	
+	if (p) {delay=((att-p)/(p*att));} //É a mesma coisa que (1/p - 1/att), outra qual ?
+		else delay=10;  //Escolher o máximo quando não tem info no gradiente ?
+	
+	if (p==1) printf("O nó detem o recurso\n");
+	else if (p==att) printf("Um dos vizinhos tem o recurso\n");
+	else printf("Atraso adicionado para o %s = BASEDELAY+%f*ADDED_DELAY\n",argv[1],delay);
 }
-
-
-//Carregar recursos no filtro
-inserir("recurso1",1,bloom1);
-inserir("recurso2",1,bloom1);
-mostra_bloom(bloom1);
-//Verificar se existem estes recursos, ou seja se p>0
-printf("recurso1 \t[p]=%f\n",contem("recurso1",bloom1));
-printf("recurso2 \t[p]=%f\n",contem("recurso2",bloom1));
-printf("recurso3 \t[p]=%f\n",contem("recurso3",bloom1));
-
-
-printf("#############################\n");
-printf("### Usar os dois vectores ###\n");
-printf("#############################\n");
-//Simular informação de um vizinho com histórico
-inserir("recurso3",1,bloom2);
-inserir("recurso4",1,bloom2);
-inserir("recurso5",0.5,bloom2);
-inserir("recurso6",0.4,bloom2);
-inserir("recurso7",0.3,bloom2);
-//O vector bloom2 já tem informação de gradiente
-mostra_bloom(bloom2);
-
-//Adicionar informação própria ao gradiente existente
-combinar(bloom1,bloom2,forward);
-//O vector a ser renviado será
-mostra_bloom(forward);
-
-printf("#############################\n");
-printf("####### Decisão no nó #######\n");
-printf("#############################\n");
-//Se um nó receber este gradiente deve aumentar o delay ?
-delay=pesquisa("recurso3",forward);
-if (delay)
-	printf("Atraso adicionado para o recurso3 = 2*HOP+%f*DELAY\n",delay);
-else
-	printf("O nó detem o recursos\n");
-//Mas um delay=0,5 significa que há um vizinho que tem o recurso... que se faz com isto ?
-
-
+else printf("Erro!: Tem de especificar um único recurso (recurso1 .. 7)\n");
 
 exit(0);
 }
