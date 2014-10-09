@@ -29,7 +29,6 @@ float min(float i, float j) {
 
 int md5(char *recurso, unsigned char hash[KEYSIZE])
 {
-
  MHASH td;
 
  td = mhash_init(MHASH_MD5);
@@ -56,15 +55,17 @@ int mostra_md5(char *recurso, unsigned char chave[KEYSIZE])
  return 0;
  }
 
+
 void mostra_bloom(void)
 {
 int i;
+
 printf("##### Conteudo do FILTRO ########\n");
 printf("Vector bloom[]:\n");
 for (i=0 ; i<M; i++)
 	{
         printf("%.2f ",bloom[i]);
-	if (!(i % 10)) { printf("\n");}
+		if (!(i % 10)) { printf("\n");}
 	}
 printf("\n");
 }
@@ -96,7 +97,7 @@ float result;
 unsigned char chave[KEYSIZE];
 
 md5(elem,chave);
-result=2;
+result=1;
 for (j=0; j<K; j++)
 	idx=chave[j];
     result=min(result,bloom[idx]);
@@ -110,6 +111,7 @@ return result;
 int main( void )
 {
 int i;
+
 
 for (i=0 ; i<M; i++)
 	bloom[i]=0;
